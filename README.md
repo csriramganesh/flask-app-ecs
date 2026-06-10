@@ -1,106 +1,190 @@
-# Flask App — AWS ECS Deployment
+# Flask Application Dockerization Project
 
-A minimal Flask web application built for learning containerization and deployment to **AWS ECS (Elastic Container Service)**.
+## Project Overview
 
-Part of the [TrainWithShubham](https://github.com/TrainWithShubham) — DevOps Zero To Hero course.
+This project demonstrates how to containerize a Python Flask application using Docker. The application was deployed and tested on an Ubuntu EC2 instance, showcasing both single-stage and multi-stage Docker builds along with Docker Compose.
 
-![Python](https://img.shields.io/badge/Python-3.14-blue)
-![Flask](https://img.shields.io/badge/Flask-3.1.1-green)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED)
-![AWS ECS](https://img.shields.io/badge/AWS-ECS-FF9900)
+## Technologies Used
 
-## Features
+* Python
+* Flask
+* Docker
+* Docker Compose
+* Ubuntu EC2
 
-- Responsive landing page with modern glassmorphism UI
-- `/health` endpoint for ECS load balancer health checks
-- Two Dockerfiles — simple and multistage (distroless)
+---
 
-## Tech Stack
+## Project Objectives
 
-| Component | Technology |
-|-----------|------------|
-| Framework | Flask 3.1.1 |
-| Runtime   | Python 3.14 |
-| Container | Docker (python-slim / distroless) |
-| Deploy    | AWS ECS |
+* Create a custom Dockerfile for a Flask application
+* Build and run Docker containers
+* Understand Docker image layers and caching
+* Implement a multi-stage Docker build
+* Compare image sizes between single-stage and multi-stage builds
+* Manage containers using Docker Compose
+
+---
 
 ## Project Structure
 
-```
+```text
 flask-app-ecs/
-├── app.py                 # Flask app with routes
-├── run.py                 # Entry point (host 0.0.0.0, port 80)
-├── requirements.txt       # Python dependencies
-├── templates/
-│   └── index.html         # Landing page
-├── Dockerfile             # Simple single-stage build
-└── Dockerfile-multi       # Multistage build with distroless
+├── app.py
+├── run.py
+├── requirements.txt
+├── Dockerfile
+├── Dockerfile-multi
+├── docker-compose.yml
+└── screenshots/
 ```
 
-## Quick Start
+---
 
-### Run locally
+## Single Stage Dockerfile
 
-```bash
-pip install -r requirements.txt
-python run.py
-```
+Created a Dockerfile using the official Python Slim image.
 
-App runs at **http://localhost:80**.
+Key steps:
 
-### Run with Docker
+* Used Python 3.14 Slim as the base image
+* Set the working directory
+* Installed application dependencies
+* Copied application source code
+* Exposed port 80
+* Started the Flask application
 
-**Simple build:**
+---
 
-```bash
-docker build -t flask-app .
-docker run -p 80:80 flask-app
-```
+## Multi-Stage Dockerfile
 
-**Multistage build (smaller, production-grade):**
-
-```bash
-docker build -f Dockerfile-multi -t flask-app .
-docker run -p 80:80 flask-app
-```
-
-## Dockerfiles Explained
-
-### Simple (`Dockerfile`)
-
-Single-stage build using `python:3.14-slim`. Straightforward — copies everything, installs dependencies, runs the app. Good for development and learning.
-
-### Multistage (`Dockerfile-multi`)
-
-Two-stage build:
-1. **Builder stage** — installs dependencies into a separate directory using `python:3.14-slim`
-2. **Final stage** — copies only the app and deps into a `distroless` image
+Created a multi-stage Docker build to separate dependency installation from the runtime environment.
 
 Benefits:
-- Smaller final image (no pip, no shell, no OS utilities)
-- Reduced attack surface — distroless images contain only the app and its runtime
-- Better layer caching — dependencies are copied before source code
 
-## Endpoints
+* Cleaner image structure
+* Better build organization
+* Improved Dockerfile practices
+* Foundation for production-grade containerization
 
-| Route     | Method | Description                     |
-|-----------|--------|---------------------------------|
-| `/`       | GET    | Landing page                    |
-| `/health` | GET    | Health check (returns `Server is up and running`) |
+---
 
-## Deploy to AWS ECS
+## Docker Compose
 
-High-level steps to deploy this app on ECS:
+Created a Docker Compose configuration to simplify container deployment and management.
 
-1. **Push image to ECR**
-   ```bash
-   aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
-   docker tag flask-app:latest <account-id>.dkr.ecr.<region>.amazonaws.com/flask-app:latest
-   docker push <account-id>.dkr.ecr.<region>.amazonaws.com/flask-app:latest
-   ```
+Features:
 
-2. **Create ECS Task Definition** — specify the ECR image, port 80, memory/CPU limits
+* Single command deployment
+* Container lifecycle management
+* Consistent runtime configuration
 
-3. **Create ECS Service** — attach to a cluster, configure desired count, link to a load balancer
+---
 
-4. **Configure ALB** — target group pointing to port 80, use `/health` as the health check path
+## Screenshots
+
+### 1. Dockerfile Created
+
+![Dockerfile Created](screenshots/01_Dockerfile_created.png)
+
+### 2. Docker Image Built
+
+![Docker Image Built](screenshots/02_Docker_image_built.png)
+
+### 3. Docker Image Verified
+
+![Docker Image Verified](screenshots/03_Docker_image_verified.png)
+
+### 4. Container Running
+
+![Container Running](screenshots/04_container_running.png)
+
+### 5. Application Running in Browser
+
+![Application Running](screenshots/05_application_running_in_browser.png)
+
+### 6. Multi-Stage Dockerfile Created
+
+![Multi Stage Dockerfile](screenshots/06_dockerfile_multi_created.png)
+
+### 7. Multi-Stage Image Built
+
+![Multi Stage Image Built](screenshots/08_multistage_image_built.png.png)
+
+### 8. Image Size Comparison
+
+![Image Size Comparison](screenshots/09_image_size_comparison.png.png)
+
+### 9. Multi-Stage Container Running
+
+![Multi Stage Container Running](screenshots/10_multistage_container_running.png)
+
+### 10. Docker Compose Configuration
+
+![Docker Compose Created](screenshots/11_docker_compose_created.png)
+
+### 11. Docker Compose Deployment
+
+![Docker Compose Up](screenshots/12_docker_compose_up_and_docker_compose_ps.png)
+
+---
+
+## Commands Used
+
+### Build Single Stage Image
+
+```bash
+docker build -t flask-app:v1 .
+```
+
+### Run Container
+
+```bash
+docker run -d --name flask-app -p 80:80 flask-app:v1
+```
+
+### Build Multi-Stage Image
+
+```bash
+docker build -f Dockerfile.multi -t flask-app:multi .
+```
+
+### Run Multi-Stage Container
+
+```bash
+docker run -d --name flask-app-multi -p 80:80 flask-app:multi
+```
+
+### Deploy Using Docker Compose
+
+```bash
+docker compose up -d
+```
+
+### Stop Docker Compose Services
+
+```bash
+docker compose down
+```
+
+---
+
+## Learning Outcomes
+
+Through this project, I learned:
+
+* Docker image creation
+* Container lifecycle management
+* Dockerfile best practices
+* Multi-stage Docker builds
+* Image optimization concepts
+* Docker Compose fundamentals
+* Running containerized applications on Linux servers
+
+---
+
+## Author
+
+Sriram Ganesh
+
+GitHub: https://github.com/csriramganesh
+
