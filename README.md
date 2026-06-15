@@ -108,11 +108,11 @@ Features:
 
 ### 7. Multi-Stage Image Built
 
-![Multi Stage Image Built](screenshots/08_multistage_image_built.png.png)
+![Multi Stage Image Built](screenshots/08_multistage_image_built.png)
 
 ### 8. Image Size Comparison
 
-![Image Size Comparison](screenshots/09_image_size_comparison.png.png)
+![Image Size Comparison](screenshots/09_image_size_comparison.png)
 
 ### 9. Multi-Stage Container Running
 
